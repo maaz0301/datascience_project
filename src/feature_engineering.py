@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import TARGET_COLUMN
 
 
-def create_time_features(df):
+def create_time_features(df, verbose=True):
     """
     Create time-based features from the 'Time' column.
     
@@ -25,6 +25,8 @@ def create_time_features(df):
     ----------
     df : pd.DataFrame
         Dataset with 'Time' column.
+    verbose : bool
+        Whether to print success messages.
     
     Returns
     -------
@@ -34,7 +36,7 @@ def create_time_features(df):
     df_feat = df.copy()
     
     if "Time" not in df_feat.columns:
-        print("  ⚠️  'Time' column not found. Skipping time features.")
+        if verbose: print("  ⚠️  'Time' column not found. Skipping time features.")
         return df_feat
     
     # Convert seconds to hours (cyclical within 24-hour period)
@@ -60,12 +62,13 @@ def create_time_features(df):
     # Is nighttime (potentially higher fraud risk)
     df_feat["Is_Night"] = ((df_feat["Hour"] >= 22) | (df_feat["Hour"] < 6)).astype(int)
     
-    print(f"    ✅ Created time features: Hour, Hour_sin, Hour_cos, Time_Period, Is_Night")
+    if verbose:
+        print(f"    ✅ Created time features: Hour, Hour_sin, Hour_cos, Time_Period, Is_Night")
     
     return df_feat
 
 
-def create_amount_features(df):
+def create_amount_features(df, verbose=True):
     """
     Create amount-based features to capture transaction patterns.
     
@@ -73,6 +76,8 @@ def create_amount_features(df):
     ----------
     df : pd.DataFrame
         Dataset with 'Amount' column.
+    verbose : bool
+        Whether to print success messages.
     
     Returns
     -------
@@ -82,7 +87,7 @@ def create_amount_features(df):
     df_feat = df.copy()
     
     if "Amount" not in df_feat.columns:
-        print("  ⚠️  'Amount' column not found. Skipping amount features.")
+        if verbose: print("  ⚠️  'Amount' column not found. Skipping amount features.")
         return df_feat
     
     # Log transform of amount (reduces skewness)
@@ -96,7 +101,7 @@ def create_amount_features(df):
         bins=amount_bins,
         labels=amount_labels,
         include_lowest=True
-    ).astype(int)
+    ).fillna(0).astype(int)
     
     # Is the amount a round number (potential fraud indicator)
     df_feat["Is_Round_Amount"] = (df_feat["Amount"] % 10 == 0).astype(int)
@@ -110,13 +115,14 @@ def create_amount_features(df):
     threshold_95 = df_feat["Amount"].quantile(0.95)
     df_feat["Is_High_Amount"] = (df_feat["Amount"] > threshold_95).astype(int)
     
-    print(f"    ✅ Created amount features: Amount_Log, Amount_Bin, Is_Round_Amount, "
-          f"Amount_ZScore, Is_High_Amount")
+    if verbose:
+        print(f"    ✅ Created amount features: Amount_Log, Amount_Bin, Is_Round_Amount, "
+              f"Amount_ZScore, Is_High_Amount")
     
     return df_feat
 
 
-def create_pca_interaction_features(df):
+def create_pca_interaction_features(df, verbose=True):
     """
     Create interaction features from PCA components.
     High-importance PCA features can be combined to create new signals.
@@ -125,6 +131,8 @@ def create_pca_interaction_features(df):
     ----------
     df : pd.DataFrame
         Dataset with V1-V28 columns.
+    verbose : bool
+        Whether to print success messages.
     
     Returns
     -------
@@ -139,7 +147,7 @@ def create_pca_interaction_features(df):
     available_features = [f for f in important_features if f in df_feat.columns]
     
     if len(available_features) < 2:
-        print("  ⚠️  Not enough PCA features for interactions.")
+        if verbose: print("  ⚠️  Not enough PCA features for interactions.")
         return df_feat
     
     # Magnitude of important PCA features (L2 norm)
@@ -163,8 +171,9 @@ def create_pca_interaction_features(df):
     if "V17" in df_feat.columns and "V14" in df_feat.columns:
         df_feat["V17_x_V14"] = df_feat["V17"] * df_feat["V14"]
     
-    print(f"    ✅ Created PCA interaction features: PCA_Magnitude, PCA_Mean, PCA_Std, "
-          f"and key interactions")
+    if verbose:
+        print(f"    ✅ Created PCA interaction features: PCA_Magnitude, PCA_Mean, PCA_Std, "
+              f"and key interactions")
     
     return df_feat
 

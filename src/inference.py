@@ -58,18 +58,18 @@ class FraudDetector:
         else:
             df = raw_record.to_frame().T
             
+        # 0. Handle initial inf/nan before engineering
+        df = df.replace([np.inf, -np.inf], np.nan).fillna(0)
+            
         # 1. Feature Engineering (Match training pipeline)
-        df = create_time_features(df)
-        df = create_amount_features(df)
-        df = create_pca_interaction_features(df)
+        df = create_time_features(df, verbose=False)
+        df = create_amount_features(df, verbose=False)
+        df = create_pca_interaction_features(df, verbose=False)
         
         # 2. Scaling
         for col, scaler in self.scalers.items():
             if col in df.columns:
                 df[col] = scaler.transform(df[[col]])
-        
-        # 3. Handle any potential inf/nan after engineering
-        df = df.replace([np.inf, -np.inf], np.nan).fillna(0)
         
         return df
 
