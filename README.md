@@ -79,6 +79,32 @@ Experience the real-time detection interface:
 streamlit run dashboard.py
 ```
 
+---
+
+## 🛡️ Dashboard Usage Guide
+
+The **Guardian Sentinel** interface is divided into three specialized operational modules:
+
+### 📡 1. Live Engine (Real-Time Monitoring)
+- **Activation**: Click the **▶️ START** button in the sidebar.
+- **Function**: Simulates a live stream of global transactions. The AI analyzes each transaction in sub-seconds.
+- **Alerts**: Fraudulent transactions trigger a pulsing red alert box and a high-risk gauge reading.
+- **Controls**: Adjust the **Stream Interval** to speed up or slow down the feed, and the **Risk Sensitivity** to fine-tune the detection threshold.
+
+### 📤 2. Batch Upload (Forensic Audit)
+- **Function**: Designed for processing historical transaction logs or bulk uploads.
+- **How to Use**:
+    1. Navigate to the **BATCH UPLOAD** tab.
+    2. Upload a CSV file (e.g., `batch_to_process.csv`).
+    3. Click **🔥 START ANALYSIS**.
+- **Output**: Generates a color-coded report identifying all fraudulent patterns found in the file, which can then be exported as a CSV audit report.
+
+### 🧠 3. AI Interpreter (Explainability)
+- **Function**: Provides "Glass Box" transparency for AI decisions.
+- **Details**: Shows exactly *why* a transaction was flagged as fraud by visualizing the impact of specific features (Time, Amount, V-components) on the risk score.
+
+---
+
 ### 4️⃣ Use REST API
 Deploy the model as a microservice:
 ```bash
